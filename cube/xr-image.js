@@ -81,8 +81,8 @@ const imageLoader = new THREE.TextureLoader();
 
 // Load images
 imagesArray.forEach((imageData) => {
-  const { src, alt } = imageData;
-  imageLoader.load(src, (texture) => onLoad(texture, alt));
+  const { src, id } = imageData;
+  imageLoader.load(src, (texture) => onLoad(texture, id));
 });
 
 function onLoad(texture, name) {
