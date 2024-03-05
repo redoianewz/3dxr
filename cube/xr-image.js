@@ -26,6 +26,15 @@ for (let i = 0; i < 10; i++) {
     imageRow.appendChild(colDiv);
   });
 }
+function createImagePlane(texture) {
+  const geometry = new THREE.PlaneGeometry(1, 1); // زيادة حجم الصورة هنا
+  const material = new THREE.MeshBasicMaterial({
+    map: texture,
+    side: THREE.DoubleSide,
+  });
+  const imagePlane = new THREE.Mesh(geometry, material);
+  return imagePlane;
+}
 
 let loadedImages = {};
 let hitTestSource = null;
@@ -35,19 +44,26 @@ let imageName = null;
 let selectedImage = null;
 
 function onSelect() {
+  console.log("Selecting image...");
   if (imageName && reticle.visible) {
+    console.log("Image name and reticle visible:", imageName);
     if (loadedImages[imageName]) {
       const existingImage = scene.getObjectByName(imageName);
+      console.log("Existing image:", existingImage);
       if (!existingImage) {
         const image = createImagePlane(loadedImages[imageName]);
         image.name = imageName;
         scene.add(image);
         selectedImage = image;
-        overlayContent.innerText = `Image Coordinates: x=${image.position.x.toFixed(2)}, y=${image.position.y.toFixed(2)}, z=${image.position.z.toFixed(2)}`;
+        console.log("Selected image:", selectedImage);
+        overlayContent.innerText = `Image Coordinates: x=${image.position.x.toFixed(
+          2
+        )}, y=${image.position.y.toFixed(2)}, z=${image.position.z.toFixed(2)}`;
       }
     }
   }
 }
+
 
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
