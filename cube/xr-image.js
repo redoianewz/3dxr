@@ -44,7 +44,7 @@ let selectedImage = null;
 
 
 function onSelect(event) {
-  const selectedId = "carpet"; // الحصول على id من الصورة المحددة
+  const selectedId =  event.target.id;
   console.log("Before selecting image - Current imageName:", selectedId);
 
   if (selectedId && reticle.visible) {
