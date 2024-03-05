@@ -1,4 +1,4 @@
-// xr-image.js
+// <!-- xr-image.js -->
 import * as THREE from "three";
 import { ARButton } from "three/examples/jsm/webxr/ARButton";
 
@@ -30,10 +30,24 @@ for (let i = 0; i < 10; i++) {
 let loadedImages = {};
 let hitTestSource = null;
 let hitTestSourceRequested = false;
-let overlayContent = document.getElementById("image-row");
-let selectInput = document.getElementById("model-select");
-let imageName = selectInput.alt;
+let overlayContent = document.getElementById("overlay-content");
+let imageName = null;
 let selectedImage = null;
+
+function onSelect() {
+  if (imageName && reticle.visible) {
+    if (loadedImages[imageName]) {
+      const existingImage = scene.getObjectByName(imageName);
+      if (!existingImage) {
+        const image = createImagePlane(loadedImages[imageName]);
+        image.name = imageName;
+        scene.add(image);
+        selectedImage = image;
+        overlayContent.innerText = `Image Coordinates: x=${image.position.x.toFixed(2)}, y=${image.position.y.toFixed(2)}, z=${image.position.z.toFixed(2)}`;
+      }
+    }
+  }
+}
 
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
@@ -46,30 +60,13 @@ window.addEventListener("resize", () => {
   renderer.setPixelRatio(window.devicePixelRatio);
 });
 
-selectInput.addEventListener("change", (e) => {
-  imageName = e.target.alt;
-});
-
 const imageLoader = new THREE.TextureLoader();
 
 // Load images
-imageLoader.load("/images/chair.png", (texture) => onLoad(texture, "chair"));
-imageLoader.load("/images/bookcase.png", (texture) =>
-  onLoad(texture, "bookcase")
-);
-imageLoader.load("/images/bookcase1.png", (texture) =>
-  onLoad(texture, "bookcase1")
-);
-imageLoader.load("/images/desk.png", (texture) => onLoad(texture, "desk"));
-imageLoader.load("/images/bed.png", (texture) => onLoad(texture, "bed"));
-imageLoader.load("/images/chiarGame.png", (texture) =>
-  onLoad(texture, "chiarGame")
-);
-imageLoader.load("/images/carpet.png", (texture) => onLoad(texture, "carpet"));
-imageLoader.load("/images/carpet1.png", (texture) =>
-  onLoad(texture, "carpet1")
-);
-
+imagesArray.forEach((imageData) => {
+  const { src, alt } = imageData;
+  imageLoader.load(src, (texture) => onLoad(texture, alt));
+});
 
 function onLoad(texture, name) {
   loadedImages[name] = texture;
@@ -118,26 +115,8 @@ document.body.appendChild(
 );
 
 let controller = renderer.xr.getController(0);
-controller.addEventListener("img", onSelect);
+controller.addEventListener("selectstart", onSelect);
 scene.add(controller);
-
-function onSelect() {
-  if (reticle.visible) {
-    if (loadedImages[imageName]) {
-      const existingImage = scene.getObjectByName(imageName);
-      if (!existingImage) {
-        const image = createImagePlane(loadedImages[imageName]);
-        image.name = imageName;
-        scene.add(image);
-        selectedImage = image;
-        overlayContent.innerText = `Image Coordinates: x=${image.position.x.toFixed(
-          2
-        )},
-         y=${image.position.y.toFixed(2)}, z=${image.position.z.toFixed(2)}`;
-      }
-    }
-  }
-}
 
 let pinchStartDistance = 0;
 let isPinching = false;
@@ -153,7 +132,6 @@ function handleTouchMove(event) {
       const deltaX = currentTouch.clientX - previousTouch.clientX;
       const deltaY = currentTouch.clientY - previousTouch.clientY;
 
-      // التحكم في الدوران إذا كان هناك لمست واحدة
       const rotationFactor = 0.01;
       selectedImage.rotation.y += deltaX * rotationFactor;
       selectedImage.rotation.x += deltaY * rotationFactor;
@@ -164,7 +142,6 @@ function handleTouchMove(event) {
       clientY: currentTouch.clientY,
     };
   } else if (touches.length === 2) {
-    // التحكم في التكبير والتصغير إذا كان هناك لمستين
     const pinchDistance = Math.hypot(
       touches[0].clientX - touches[1].clientX,
       touches[0].clientY - touches[1].clientY
@@ -180,18 +157,11 @@ function handleTouchMove(event) {
     if (selectedImage) {
       selectedImage.scale.multiplyScalar(zoomFactor);
 
-      overlayContent.innerText = `Image Coordinates: x=${selectedImage.position.x.toFixed(
-        2
-      )}, y=${selectedImage.position.y.toFixed(
-        2
-      )}, z=${selectedImage.position.z.toFixed(
-        2
-      )}\nScale: ${selectedImage.scale.x.toFixed(2)}`;
+      overlayContent.innerText = `Image Coordinates: x=${selectedImage.position.x.toFixed(2)}, y=${selectedImage.position.y.toFixed(2)}, z=${selectedImage.position.z.toFixed(2)}\nScale: ${selectedImage.scale.x.toFixed(2)}`;
     }
 
     pinchStartDistance = pinchDistance;
   } else {
-    // إذا لم تكن هناك لمستين، قم بإعادة القيم إلى القيم الافتراضية
     previousTouch = null;
     isPinching = false;
     pinchStartDistance = 0;
