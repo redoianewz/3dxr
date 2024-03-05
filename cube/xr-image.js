@@ -80,7 +80,10 @@ window.addEventListener("resize", () => {
 const imageLoader = new THREE.TextureLoader();
 
 // Load images
-imageLoader.load("/images/carpet.png", (texture) => onLoad(texture, "carpet"));
+imagesArray.forEach((imageData) => {
+  const { src, id } = imageData;
+  imageLoader.load(src, (texture) => onLoad(texture, id));
+});
 
 
 
