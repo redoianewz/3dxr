@@ -3,28 +3,28 @@ import * as THREE from "three";
 import { ARButton } from "three/examples/jsm/webxr/ARButton";
 
 const imagesArray = [
-  { value: "carpet", src: "/images/carpet.png", alt: "Carpet" },
-  { value: "carpet1", src: "/images/carpet1.png", alt: "Carpet1" },
-  { value: "carpet4", src: "/images/carpet2.jpg", alt: "Carpet4" },
-  { value: "carpet5", src: "/images/carpet3.jpg", alt: "Carpet5" },
-  { value: "carpet6", src: "/images/carpet4.jpg", alt: "Carpet6" },
-  { value: "carpet7", src: "/images/carpet5.jpg", alt: "Carpet7" },
+  { id: "carpet", src: "/images/carpet.png", alt: "Carpet" },
+  { id: "carpet1", src: "/images/carpet1.png", alt: "Carpet1" },
+  { id: "carpet4", src: "/images/carpet2.jpg", alt: "Carpet4" },
+  { id: "carpet5", src: "/images/carpet3.jpg", alt: "Carpet5" },
+  { id: "carpet6", src: "/images/carpet4.jpg", alt: "Carpet6" },
+  { id: "carpet7", src: "/images/carpet5.jpg", alt: "Carpet7" },
 ];
 
 const imageRow = document.getElementById("image-row");
 for (let i = 0; i < 10; i++) {
-  imagesArray.forEach((imageData) => {
-    const { src, alt } = imageData;
-    const colDiv = document.createElement("div");
-    colDiv.className = " col-lg-2 mb12";
-    const imgElement = document.createElement("img");
-    imgElement.id = "model-select";
-    imgElement.onclick = onSelect;
-    imgElement.src = src;
-    imgElement.alt = alt;
-    colDiv.appendChild(imgElement);
-    imageRow.appendChild(colDiv);
-  });
+ imagesArray.forEach((imageData) => {
+   const { src, alt, id } = imageData; // استخدام id بدلاً من id
+   const colDiv = document.createElement("div");
+   colDiv.className = "col-lg-2 mb12";
+   const imgElement = document.createElement("img");
+   imgElement.id = id; // استخدام id كـ id
+   imgElement.onclick = onSelect;
+   imgElement.src = src;
+   imgElement.alt = alt;
+   colDiv.appendChild(imgElement);
+   imageRow.appendChild(colDiv);
+ });
 }
 function createImagePlane(texture) {
   const geometry = new THREE.PlaneGeometry(1, 1); // زيادة حجم الصورة هنا
@@ -40,19 +40,21 @@ let loadedImages = {};
 let hitTestSource = null;
 let hitTestSourceRequested = false;
 let overlayContent = document.getElementById("overlay-content");
-let imageName = null;
 let selectedImage = null;
 
-function onSelect() {
-  console.log("Selecting image...");
-  if (imageName && reticle.visible) {
-    console.log("Image name and reticle visible:", imageName);
-    if (loadedImages[imageName]) {
-      const existingImage = scene.getObjectByName(imageName);
+
+function onSelect(event) {
+  const selectedId = event.target.id; // الحصول على id من الصورة المحددة
+  console.log("Before selecting image - Current imageName:", selectedId);
+
+  if (selectedId && reticle.visible) {
+    console.log("Image id and reticle visible:", selectedId);
+    if (loadedImages[selectedId]) {
+      const existingImage = scene.getObjectByName(selectedId);
       console.log("Existing image:", existingImage);
       if (!existingImage) {
-        const image = createImagePlane(loadedImages[imageName]);
-        image.name = imageName;
+        const image = createImagePlane(loadedImages[selectedId]);
+        image.name = selectedId;
         scene.add(image);
         selectedImage = image;
         console.log("Selected image:", selectedImage);
@@ -62,9 +64,8 @@ function onSelect() {
       }
     }
   }
+  console.log("After selecting image - Current imageName:", selectedId);
 }
-
-
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
   sizes.height = window.innerHeight;
