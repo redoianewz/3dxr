@@ -5,10 +5,10 @@ import { ARButton } from "three/examples/jsm/webxr/ARButton";
 const imagesArray = [
   { id: "carpet", src: "/images/carpet.png", alt: "Carpet" },
   { id: "carpet1", src: "/images/carpet1.png", alt: "Carpet1" },
-  { id: "carpet4", src: "/images/carpet2.jpg", alt: "Carpet4" },
-  { id: "carpet5", src: "/images/carpet3.jpg", alt: "Carpet5" },
-  { id: "carpet6", src: "/images/carpet4.jpg", alt: "Carpet6" },
-  { id: "carpet7", src: "/images/carpet5.jpg", alt: "Carpet7" },
+  { id: "carpet2", src: "/images/carpet2.jpg", alt: "Carpet4" },
+  { id: "carpet3", src: "/images/carpet3.jpg", alt: "Carpet5" },
+  { id: "carpet4", src: "/images/carpet4.jpg", alt: "Carpet6" },
+  { id: "carpet5", src: "/images/carpet5.jpg", alt: "Carpet7" },
 ];
 
 const imageRow = document.getElementById("image-row");
@@ -80,10 +80,16 @@ window.addEventListener("resize", () => {
 const imageLoader = new THREE.TextureLoader();
 
 // Load images
-imagesArray.forEach((imageData) => {
-  const { src, id } = imageData;
-  imageLoader.load(src, (texture) => onLoad(texture, id));
-});
+// imagesArray.forEach((imageData) => {
+//   const { src, id } = imageData;
+//   imageLoader.load(src, (texture) => onLoad(texture, id));
+// });
+imageLoader.load("/images/carpet.png", (texture) => {onLoad(texture, "carpet");});
+imageLoader.load("/images/carpet1.png", (texture) => {onLoad(texture, "carpet1");});
+imageLoader.load("/images/carpet2.jpg", (texture) => {onLoad(texture, "carpet2");});
+imageLoader.load("/images/carpet3.jpg", (texture) => {onLoad(texture, "carpet3");});
+imageLoader.load("/images/carpet4.jpg", (texture) => {onLoad(texture, "carpet4");});  
+imageLoader.load("/images/carpet5.jpg", (texture) => {onLoad(texture, "carpet5");});
 
 function onLoad(texture, name) {
   loadedImages[name] = texture;
