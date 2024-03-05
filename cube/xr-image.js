@@ -243,10 +243,17 @@ function render(timestamp, frame) {
       if (hitTestResults.length > 0) {
         const hit = hitTestResults[0];
         reticle.visible = true;
-        reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
 
         if (selectedImage) {
           reticle.visible = false;
+        }
+
+        // قم بتحديث موقع الـ reticle داخل الشرط الخاص بـ selectedImage
+        if (selectedImage) {
+          reticle.matrix.fromArray(
+            hit.getPose(referenceSpace).transform.matrix
+          );
+          reticle.visible = true; // قم بإظهار الـ reticle مجددًا
         }
       } else {
         reticle.visible = false;
