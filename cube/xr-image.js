@@ -12,7 +12,7 @@ const imagesArray = [
 ];
 
 const imageRow = document.getElementById("image-row");
-for (let i = 0; i < 10; i++) {
+
  imagesArray.forEach((imageData) => {
    const { src, alt, id } = imageData; // استخدام id بدلاً من id
    const colDiv = document.createElement("div");
@@ -25,7 +25,7 @@ for (let i = 0; i < 10; i++) {
    colDiv.appendChild(imgElement);
    imageRow.appendChild(colDiv);
  });
-}
+
 function createImagePlane(texture) {
   const geometry = new THREE.PlaneGeometry(1, 1); // زيادة حجم الصورة هنا
   const material = new THREE.MeshBasicMaterial({
@@ -44,7 +44,7 @@ let selectedImage = null;
 
 
 function onSelect(event) {
-  const selectedId = event.target.id; // الحصول على id من الصورة المحددة
+  const selectedId = "carpet"; // الحصول على id من الصورة المحددة
   console.log("Before selecting image - Current imageName:", selectedId);
 
   if (selectedId && reticle.visible) {
@@ -80,16 +80,9 @@ window.addEventListener("resize", () => {
 const imageLoader = new THREE.TextureLoader();
 
 // Load images
-// imagesArray.forEach((imageData) => {
-//   const { src, id } = imageData;
-//   imageLoader.load(src, (texture) => onLoad(texture, id));
-// });
-imageLoader.load("/images/carpet.png", (texture) => {onLoad(texture, "carpet");});
-imageLoader.load("/images/carpet1.png", (texture) => {onLoad(texture, "carpet1");});
-imageLoader.load("/images/carpet2.jpg", (texture) => {onLoad(texture, "carpet2");});
-imageLoader.load("/images/carpet3.jpg", (texture) => {onLoad(texture, "carpet3");});
-imageLoader.load("/images/carpet4.jpg", (texture) => {onLoad(texture, "carpet4");});  
-imageLoader.load("/images/carpet5.jpg", (texture) => {onLoad(texture, "carpet5");});
+imageLoader.load("/images/carpet.png", (texture) => onLoad(texture, "carpet"));
+
+
 
 function onLoad(texture, name) {
   loadedImages[name] = texture;
