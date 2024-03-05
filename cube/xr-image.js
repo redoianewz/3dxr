@@ -27,12 +27,14 @@ const imageRow = document.getElementById("image-row");
  });
 
 function createImagePlane(texture) {
-  const geometry = new THREE.PlaneGeometry(1, 1); // زيادة حجم الصورة هنا
-  const material = new THREE.MeshBasicMaterial({
-    map: texture,
-    side: THREE.DoubleSide,
-  });
-  const imagePlane = new THREE.Mesh(geometry, material);
+  const imageMaterial = new THREE.MeshBasicMaterial({ map: texture });
+  const imagePlane = new THREE.Mesh(
+    new THREE.PlaneGeometry(1, 1),
+    imageMaterial
+  );
+  imagePlane.rotation.x = -Math.PI / 2;
+  imagePlane.position.setFromMatrixPosition(reticle.matrix);
+  imagePlane.scale.set(0.5, 0.5, 0.5);
   return imagePlane;
 }
 
