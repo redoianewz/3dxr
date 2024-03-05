@@ -43,10 +43,11 @@ let hitTestSource = null;
 let hitTestSourceRequested = false;
 let overlayContent = document.getElementById("overlay-content");
 let selectedImage = null;
+let reticleHitTestSource = null; 
 
 
 function onSelect(event) {
-  const selectedId =  event.target.id;
+  const selectedId = event.target.id;
   console.log("Before selecting image - Current imageName:", selectedId);
 
   if (selectedId && reticle.visible) {
@@ -60,6 +61,19 @@ function onSelect(event) {
         scene.add(image);
         selectedImage = image;
         console.log("Selected image:", selectedImage);
+
+        // تحديث موقع الـ reticle
+        reticle.visible = false; // قم بإخفاء الـ reticle مؤقتًا
+
+        // افتراضًا أنك قد قمت بتعريف المتغير reticleHitTestSource
+        const hitTest = frame.getHitTestResults(reticleHitTestSource);
+        if (hitTest.length > 0) {
+          reticle.matrix.fromArray(
+            hitTest[0].getPose(referenceSpace).transform.matrix
+          );
+          reticle.visible = true; // قم بإظهار الـ reticle مجددًا
+        }
+
         overlayContent.innerText = `Image Coordinates: x=${image.position.x.toFixed(
           2
         )}, y=${image.position.y.toFixed(2)}, z=${image.position.z.toFixed(2)}`;
@@ -68,6 +82,7 @@ function onSelect(event) {
   }
   console.log("After selecting image - Current imageName:", selectedId);
 }
+
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
   sizes.height = window.innerHeight;
@@ -209,7 +224,10 @@ function render(timestamp, frame) {
       session.requestReferenceSpace("viewer").then((referenceSpace) => {
         session
           .requestHitTestSource({ space: referenceSpace })
-          .then((source) => (hitTestSource = source));
+          .then((source) => {
+            reticleHitTestSource = source; // تعيين المتغير عند الحصول على source
+            hitTestSource = source;
+          });
       });
 
       hitTestSourceRequested = true;
