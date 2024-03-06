@@ -13,18 +13,20 @@ const imagesArray = [
 
 const imageRow = document.getElementById("image-row");
 
- imagesArray.forEach((imageData) => {
-   const { src, alt, id } = imageData; // استخدام id بدلاً من id
-   const colDiv = document.createElement("div");
-   colDiv.className = "col-lg-2 mb12";
-   const imgElement = document.createElement("img");
-   imgElement.id = id; // استخدام id كـ id
-   imgElement.onclick = onSelect;
-   imgElement.src = src;
-   imgElement.alt = alt;
-   colDiv.appendChild(imgElement);
-   imageRow.appendChild(colDiv);
- });
+
+
+imagesArray.forEach((imageData) => {
+  const { src, alt, id } = imageData; 
+  const colDiv = document.createElement("div");
+  colDiv.className = "col-lg-2 mb12";
+  const imgElement = document.createElement("img");
+  imgElement.id = id;
+  imgElement.onclick = onSelect;
+  imgElement.src = src;
+  imgElement.alt = alt;
+  colDiv.appendChild(imgElement);
+  imageRow.appendChild(colDiv);
+});
 
 function createImagePlane(texture) {
   const imageMaterial = new THREE.MeshBasicMaterial({ map: texture });
@@ -43,13 +45,13 @@ let hitTestSource = null;
 let hitTestSourceRequested = false;
 let overlayContent = document.getElementById("overlay-content");
 let selectedImage = null;
-let reticleHitTestSource = null; 
+let selectedId = null;
+console.log("Before selecting image - Current imageName:", selectedId);
+
 
 
 function onSelect(event) {
-  const selectedId = event.target.id;
-  console.log("Before selecting image - Current imageName:", selectedId);
-
+  selectedId = event.target.id;
   if (selectedId && reticle.visible) {
     console.log("Image id and reticle visible:", selectedId);
     if (loadedImages[selectedId]) {
@@ -61,28 +63,17 @@ function onSelect(event) {
         scene.add(image);
         selectedImage = image;
         console.log("Selected image:", selectedImage);
-
-        // تحديث موقع الـ reticle
-        reticle.visible = false; // قم بإخفاء الـ reticle مؤقتًا
-
-        // افتراضًا أنك قد قمت بتعريف المتغير reticleHitTestSource
-        const hitTest = frame.getHitTestResults(reticleHitTestSource);
-        if (hitTest.length > 0) {
-          reticle.matrix.fromArray(
-            hitTest[0].getPose(referenceSpace).transform.matrix
-          );
-          reticle.visible = true; // قم بإظهار الـ reticle مجددًا
-        }
-
         overlayContent.innerText = `Image Coordinates: x=${image.position.x.toFixed(
           2
         )}, y=${image.position.y.toFixed(2)}, z=${image.position.z.toFixed(2)}`;
       }
     }
   }
-  console.log("After selecting image - Current imageName:", selectedId);
 }
+document.addEventListener("click", ()=>{
+  console.log("After selecting image - Current imageName:", selectedId);
 
+});
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
   sizes.height = window.innerHeight;
@@ -101,8 +92,6 @@ imagesArray.forEach((imageData) => {
   const { src, id } = imageData;
   imageLoader.load(src, (texture) => onLoad(texture, id));
 });
-
-
 
 function onLoad(texture, name) {
   loadedImages[name] = texture;
@@ -193,7 +182,13 @@ function handleTouchMove(event) {
     if (selectedImage) {
       selectedImage.scale.multiplyScalar(zoomFactor);
 
-      overlayContent.innerText = `Image Coordinates: x=${selectedImage.position.x.toFixed(2)}, y=${selectedImage.position.y.toFixed(2)}, z=${selectedImage.position.z.toFixed(2)}\nScale: ${selectedImage.scale.x.toFixed(2)}`;
+      overlayContent.innerText = `Image Coordinates: x=${selectedImage.position.x.toFixed(
+        2
+      )}, y=${selectedImage.position.y.toFixed(
+        2
+      )}, z=${selectedImage.position.z.toFixed(
+        2
+      )}\nScale: ${selectedImage.scale.x.toFixed(2)}`;
     }
 
     pinchStartDistance = pinchDistance;
@@ -224,10 +219,7 @@ function render(timestamp, frame) {
       session.requestReferenceSpace("viewer").then((referenceSpace) => {
         session
           .requestHitTestSource({ space: referenceSpace })
-          .then((source) => {
-            reticleHitTestSource = source; // تعيين المتغير عند الحصول على source
-            hitTestSource = source;
-          });
+          .then((source) => (hitTestSource = source));
       });
 
       hitTestSourceRequested = true;
@@ -243,17 +235,10 @@ function render(timestamp, frame) {
       if (hitTestResults.length > 0) {
         const hit = hitTestResults[0];
         reticle.visible = true;
+        reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
 
         if (selectedImage) {
           reticle.visible = false;
-        }
-
-        // قم بتحديث موقع الـ reticle داخل الشرط الخاص بـ selectedImage
-        if (selectedImage) {
-          reticle.matrix.fromArray(
-            hit.getPose(referenceSpace).transform.matrix
-          );
-          reticle.visible = true; // قم بإظهار الـ reticle مجددًا
         }
       } else {
         reticle.visible = false;
